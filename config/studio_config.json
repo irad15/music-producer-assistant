@@ -1,0 +1,39 @@
+{
+    "services": {
+        "mixing": {
+            "duration": 4,
+            "base_price": 500
+        },
+        "recording": {
+            "duration": 2,
+            "base_price": 300
+        }
+    },
+    "timezone": "Asia/Jerusalem",
+    "rules": [
+        "No smoking",
+        "50% deposit required"
+    ],
+    "requirements": [
+        {
+            "id": "client_name",
+            "description": "Name of the client",
+            "type": "string"
+        },
+        {
+            "id": "service_type",
+            "description": "Type of service (mixing, recording, etc.)",
+            "type": "string"
+        },
+        {
+            "id": "attendee_count",
+            "description": "Number of people attending",
+            "type": "integer"
+        },
+        {
+            "id": "requested_slot",
+            "description": "Requested ISO timestamp for session start",
+            "type": "string"
+        }
+    ]
+}
