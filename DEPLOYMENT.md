@@ -20,7 +20,9 @@ This project is deployed in two parts:
     Scroll down to "Environment Variables" and add:
     *   `OPENAI_API_KEY`: (Your key)
     *   `RESEND_API_KEY`: (Your key)
-    *   *(Optional)* `Google Credentials`: You will need to upload your `credentials.json` and `token.json` or use a different auth method for production. For MVP, you can paste the JSON content into a variable like `GOOGLE_CREDENTIALS_JSON` and update `tools/calendar_mcp.py` to read from it.
+    *   *(Optional)* **Google Auth**: Instead of Env Vars, use the "Secret Files" tab in Render.
+        1.  Add `auth/token.json` with the content of your local file.
+        2.  Add `auth/credentials.json` with the content of your local file.
 7.  Click **Create Web Service**.
 8.  **Copy the URL**: Once deployed, copy the URL (e.g., `https://music-backend.onrender.com`).
 

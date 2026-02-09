@@ -44,8 +44,9 @@ export default function Chat() {
         setIsLoading(true);
 
         try {
-            // B. Send to Python Backend (Port 8000)
-            const response = await fetch('http://localhost:8000/api/chat', {
+            // B. Send to Python Backend (Port 8000 default or Prod URL)
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/chat';
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ messages: [...messages, userMsg] }),
