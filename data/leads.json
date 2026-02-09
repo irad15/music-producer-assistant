@@ -126,5 +126,12 @@
     "attendee_count": 2,
     "requested_slot": "2026-02-08T19:45:00+02:00",
     "producer_summary": "NEW LEAD:\nclient_name: Irad\nservice_type: mixing\nattendee_count: 2\nrequested_slot: 2026-02-08T19:45:00+02:00"
+  },
+  {
+    "client_name": "MOMA",
+    "service_type": "mixing",
+    "attendee_count": 3,
+    "requested_slot": "2026-02-14T15:45:00",
+    "producer_summary": "NEW LEAD:\nclient_name: MOMA\nservice_type: mixing\nattendee_count: 3\nrequested_slot: 2026-02-14T15:45:00"
   }
 ]
