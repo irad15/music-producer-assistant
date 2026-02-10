@@ -133,5 +133,19 @@
     "attendee_count": 3,
     "requested_slot": "2026-02-14T15:45:00",
     "producer_summary": "NEW LEAD:\nclient_name: MOMA\nservice_type: mixing\nattendee_count: 3\nrequested_slot: 2026-02-14T15:45:00"
+  },
+  {
+    "client_name": "Irad",
+    "service_type": "mixing",
+    "attendee_count": 1,
+    "requested_slot": "2026-02-16T00:30:00",
+    "producer_summary": "NEW LEAD:\nclient_name: Irad\nservice_type: mixing\nattendee_count: 1\nrequested_slot: 2026-02-16T00:30:00"
+  },
+  {
+    "client_name": "Irad",
+    "service_type": "mixing",
+    "attendee_count": 1,
+    "requested_slot": "2026-02-18T15:30:00",
+    "producer_summary": "NEW LEAD:\nclient_name: Irad\nservice_type: mixing\nattendee_count: 1\nrequested_slot: 2026-02-18T15:30:00"
   }
 ]

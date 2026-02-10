@@ -24,7 +24,11 @@ def get_calendar_service():
     if os.path.exists(token_path):
         creds = Credentials.from_authorized_user_file(token_path, SCOPES)
     
-    # Priority 2: Env Var (Prod/Render)
+    # Priority 2: Render Secret File (Prod)
+    elif os.path.exists("/etc/secrets/token.json"):
+        creds = Credentials.from_authorized_user_file("/etc/secrets/token.json", SCOPES)
+
+    # Priority 3: Env Var (Direct Paste)
     elif os.environ.get("GOOGLE_TOKEN_JSON"):
         import json
         token_info = json.loads(os.environ.get("GOOGLE_TOKEN_JSON"))

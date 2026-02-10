@@ -46,6 +46,13 @@ async def lifespan(app: FastAPI):
             checkpointer = AsyncPostgresSaver(conn)
             await checkpointer.setup()
         print("✅ Postgres Checkpointer Ready.")
+        app.state.checkpointer = None # We create new PostgresSaver per request
+    
+    if not DB_URI:
+        # Fallback: Initialize MemorySaver globally ONCE
+        from langgraph.checkpoint.memory import MemorySaver
+        app.state.checkpointer = MemorySaver()
+        print("🧠 MemorySaver Checkpointer Ready (Local/Ephemeral).")
         
     app.state.pool = pool
     yield
@@ -97,13 +104,12 @@ async def chat_endpoint(request: ChatRequest, fastapi_request: Request):
         pool = fastapi_request.app.state.pool
         
         if pool:
-            # Persistent Mode (Postgres)
+            # Persistent Mode (Postgres) - Create per request using pool
             checkpointer = AsyncPostgresSaver(pool)
             agent_app = app_workflow.compile(checkpointer=checkpointer)
         else:
-            # Fallback Mode (Memory)
-            from langgraph.checkpoint.memory import MemorySaver
-            checkpointer = MemorySaver()
+            # Fallback Mode (Memory) - Reuse global instance
+            checkpointer = fastapi_request.app.state.checkpointer
             agent_app = app_workflow.compile(checkpointer=checkpointer)
 
         # Initialize or Update State
