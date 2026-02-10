@@ -10,7 +10,7 @@ Endpoints:
 - POST /api/chat: Interaction endpoint. Receives user message, returns agent stream.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -79,7 +79,7 @@ class ChatRequest(BaseModel):
 # --- ENDPOINTS ---
 
 @app.post("/api/chat")
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, fastapi_request: Request):
     """
     Main chat handler.
     Streams the agent's response back to the client.
@@ -94,7 +94,7 @@ async def chat_endpoint(request: ChatRequest):
         print(f"Incoming Request: {user_message}")
         
         # Initialize Checkpointer
-        pool = request.app.state.pool
+        pool = fastapi_request.app.state.pool
         
         if pool:
             # Persistent Mode (Postgres)
