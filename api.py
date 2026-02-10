@@ -34,7 +34,8 @@ async def lifespan(app: FastAPI):
         pool = None
     else:
         print("🔌 Connecting to Supabase Postgres...")
-        pool = AsyncConnectionPool(conninfo=DB_URI, max_size=20)
+        # Fix: Don't open automatically in constructor
+        pool = AsyncConnectionPool(conninfo=DB_URI, max_size=20, open=False)
         await pool.open()
         
         # Initialize tables
