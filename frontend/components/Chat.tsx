@@ -17,6 +17,12 @@ export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [sessionId, setSessionId] = useState<string>('');
+
+    useEffect(() => {
+        // Generate a random session ID on mount
+        setSessionId(crypto.randomUUID());
+    }, []);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +55,10 @@ export default function Chat() {
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages: [...messages, userMsg] }),
+                body: JSON.stringify({
+                    messages: [...messages, userMsg],
+                    session_id: sessionId // Send unique session ID
+                }),
             });
 
             if (!response.ok) throw new Error('Network error');

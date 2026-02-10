@@ -37,6 +37,7 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[Message]
+    session_id: str = "default_session"
 
 # ... (Helpers)
 
@@ -49,8 +50,9 @@ async def chat_endpoint(request: ChatRequest):
     Streams the agent's response back to the client.
     """
     try:
-        # Config for thread (hardcoded for MVP demo, can be dynamic later)
-        config = {"configurable": {"thread_id": "session_1"}}
+        # Config for thread (Use Frontend Session ID)
+        thread_id = request.session_id
+        config = {"configurable": {"thread_id": thread_id}}
         
         # Parse input
         user_message = request.messages[-1].content
