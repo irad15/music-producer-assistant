@@ -40,6 +40,9 @@ async def lifespan(app: FastAPI):
         
         # Initialize tables
         async with pool.connection() as conn:
+            # CREATE INDEX CONCURRENTLY cannot run in a transaction block
+            # We must enable autocommit for this setup step
+            await conn.set_autocommit(True)
             checkpointer = AsyncPostgresSaver(conn)
             await checkpointer.setup()
         print("✅ Postgres Checkpointer Ready.")
