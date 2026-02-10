@@ -154,5 +154,12 @@
     "attendee_count": 4,
     "requested_slot": "2026-02-18T15:30:00Z",
     "producer_summary": "NEW LEAD:\nclient_name: Irad\nservice_type: mixing\nattendee_count: 4\nrequested_slot: 2026-02-18T15:30:00Z"
+  },
+  {
+    "client_name": "Irad",
+    "service_type": "mixing",
+    "attendee_count": 2,
+    "requested_slot": "2026-02-18T15:30:00",
+    "producer_summary": "NEW LEAD:\nclient_name: Irad\nservice_type: mixing\nattendee_count: 2\nrequested_slot: 2026-02-18T15:30:00"
   }
 ]

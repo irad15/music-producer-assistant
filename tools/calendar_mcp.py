@@ -42,7 +42,10 @@ def parse_time(iso_str: str, tz_name: str) -> datetime.datetime:
     try:
         dt = datetime.datetime.fromisoformat(iso_str)
     except ValueError:
-        dt = datetime.datetime.strptime(iso_str, "%Y-%m-%d %H:%M")
+        try:
+            dt = datetime.datetime.strptime(iso_str, "%Y-%m-%d %H:%M")
+        except ValueError:
+            dt = datetime.datetime.strptime(iso_str, "%d/%m/%Y %H:%M")
     
     tz = ZoneInfo(tz_name) if tz_name != "UTC" else datetime.timezone.utc
     if dt.tzinfo is None:
@@ -65,7 +68,7 @@ def check_availability(start_time_iso: str, duration_hours: int):
     try:
         start_dt = parse_time(start_time_iso, studio_tz)
     except Exception as e:
-        return {"available": False, "error": f"Date error: {e}"}
+        return {"available": False, "alternatives": [], "error": f"Date error: {e}"}
         
     end_dt = start_dt + datetime.timedelta(hours=duration_hours)
     print(f"📅 Checking Availability: {start_dt.isoformat()} to {end_dt.isoformat()} ({studio_tz})")

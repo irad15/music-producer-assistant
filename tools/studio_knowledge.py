@@ -31,6 +31,8 @@ def get_service_details(service_name: str):
     config = get_studio_config()
     if "error" in config:
         return None
+    if service_name.lower() == "all":
+        return config.get("services", {})
     return config.get("services", {}).get(service_name.lower())
 
 def get_requirements():

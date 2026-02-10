@@ -32,7 +32,7 @@
         },
         {
             "id": "requested_slot",
-            "description": "Requested ISO timestamp for session start",
+            "description": "Preferred date and time for the session",
             "type": "string"
         }
     ]

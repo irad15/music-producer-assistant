@@ -93,7 +93,7 @@ def analyze_conversation(messages: List[str], current_data: Dict[str, Any]) -> D
 
 def generate_response(messages: List[str], current_data: Dict[str, Any], missing_field: str) -> str:
     """Generates a conversational question for the next missing field."""
-    system_prompt = f"""You are 'Groove', a cool, professional music producer.
+    system_prompt = f"""You are 'Groove', professional music producer.
     Status: {json.dumps(current_data)}
     Missing: {missing_field}
     Task: Acknowledge new info. Ask for '{missing_field}'. One question only. Short.
@@ -134,9 +134,27 @@ def intake_node(state: AgentState):
     if not missing_fields:
         return {"next_step": "scoping", "project_spec": current_data}
     
-    # 3. Response
-    response_text = generate_response(messages, current_data, missing_fields[0])
-    return {"messages": messages + [response_text], "next_step": "intake", "project_spec": current_data}
+    # 3. Response Generation
+    next_missing = missing_fields[0]
+    response_prompt = f"""You are 'Groove', a laid-back, professional, and friendly music producer assistant.
+    You're chatting with a potential client. Your vibe is cool but efficient.
+    
+    Current Project Status: {json.dumps(current_data)}
+    Missing Info Needed: {next_missing}
+    
+    Goal: Ask for '{next_missing}' to move the booking forward.
+    
+    Guidelines:
+    - Acknowledge what they just said in a natural, friendly way (e.g. "Got it," "Sounds cool").
+    - Be conversational!
+    - Don't be a robot. Act like a real person texting.
+    - Ask ONLY for the missing info. Don't overwhelm them.
+    - Keep it short and punchy.
+    """
+    response_msgs = [SystemMessage(content=response_prompt)] + [HumanMessage(content=m) for m in messages[-3:]]
+    response = get_llm().invoke(response_msgs)
+    
+    return {"messages": messages + [response.content], "next_step": "intake", "project_spec": current_data}
 
 def scoping_node(state: AgentState):
     """Checks availability."""
@@ -157,9 +175,20 @@ def scoping_node(state: AgentState):
         return {"next_step": "finalize"}
     
     # Handle Busy Slot
+    # Handle Busy Slot with Error or No Alternatives
+    if result.get('error') or not result.get('alternatives'):
+        msg = f"My bad, I couldn't check that date/time properly or it's fully booked. Can you double check the format (DD/MM/YYYY HH:MM) or try another time?"
+        spec['requested_slot'] = None # Reset to ask again
+        return {"messages": state['messages'] + [msg], "next_step": "intake", "project_spec": spec}
+
     alt_iso = result['alternatives'][0]
     spec.update({'requested_slot': None, 'candidate_slot': alt_iso})
-    msg = f"Yo, that slot is booked. How about {alt_iso}?"
+    
+    # Make date readable
+    dt = datetime.datetime.fromisoformat(alt_iso)
+    readable_date = dt.strftime("%A, %d %B at %H:%M")
+    
+    msg = f"Yo, that slot is booked. I got an opening on {readable_date}. Does that work for you?"
     return {"messages": state['messages'] + [msg], "next_step": "intake", "project_spec": spec}
 
 def finalize_node(state: AgentState):
@@ -194,7 +223,8 @@ def finalize_node(state: AgentState):
     except Exception as e:
         print(f"Email failed: {e}")
 
-    return {"messages": state['messages'] + ["All set! Sent to the producer."], "next_step": "END"}
+    msg = f"Awesome! I've sent the details to the producer. Catch you in the studio! 🎧"
+    return {"messages": state['messages'] + [msg], "next_step": "END"}
 
 # --- GRAPH BUILD ---
 workflow = StateGraph(AgentState)
