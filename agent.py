@@ -18,8 +18,9 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Annotated
 from pydantic import create_model, Field
+import operator
 
 # Import Tools
 from tools.studio_knowledge import get_service_details, validate_service, get_requirements
@@ -51,7 +52,7 @@ def create_project_spec_model():
 ProjectSpec = create_project_spec_model()
 
 class AgentState(TypedDict):
-    messages: List[str] # Chat history
+    messages: Annotated[List[str], operator.add] # Append history
     project_spec: Dict[str, Any] # Now a dict, since the model is dynamic
     next_step: str
 
