@@ -147,6 +147,8 @@ export default function Chat() {
             <div className="p-4 bg-zinc-950 border-t border-zinc-800">
                 <form onSubmit={handleSubmit} className="relative">
                     <input
+                        id="chat-input"
+                        name="chat-input"
                         className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all placeholder:text-zinc-600"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
