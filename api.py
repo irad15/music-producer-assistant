@@ -76,10 +76,13 @@ async def chat_endpoint(request: ChatRequest):
             # We don't 'invoke', we 'stream' response
             graph_input = initial_state
         else:
-            # Continuing Session
-            # We must update the state with the new user message
-            # For our graph, we update 'messages' list
-            agent_app.update_state(config, {"messages": [user_message]})
+            # Continuing Session - MANUAL APPEND
+            # Because MemorySaver on Render/Cloud might handle reducers differently per thread in memory,
+            # we explicitly read the last state and append the new message.
+            current_msgs = current_state.get("messages", [])
+            new_history = current_msgs + [user_message]
+            
+            agent_app.update_state(config, {"messages": new_history})
             graph_input = None # Start from current state
 
         # Generator for streaming

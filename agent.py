@@ -18,9 +18,8 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
-from typing import Dict, Any, List, Optional, Annotated
+from typing import Dict, Any, List, Optional
 from pydantic import create_model, Field
-import operator
 
 # Import Tools
 from tools.studio_knowledge import get_service_details, validate_service, get_requirements
@@ -52,7 +51,7 @@ def create_project_spec_model():
 ProjectSpec = create_project_spec_model()
 
 class AgentState(TypedDict):
-    messages: Annotated[List[str], operator.add] # Append history
+    messages: List[str] # Manual Append
     project_spec: Dict[str, Any] # Now a dict, since the model is dynamic
     next_step: str
 
@@ -173,7 +172,7 @@ def intake_node(state: AgentState):
     
     response = llm.invoke(response_messages)
     
-    return {"messages": [response.content], "next_step": "intake", "project_spec": current_data}
+    return {"messages": messages + [response.content], "next_step": "intake", "project_spec": current_data}
 
 def scoping_node(state: AgentState):
     """
@@ -192,11 +191,11 @@ def scoping_node(state: AgentState):
     
     if not service_type or not requested_slot:
         # Fallback if config was changed incompatibly
-        return {"messages": ["Error: Config missing required fields for Scoping."], "next_step": "END"}
+        return {"messages": state['messages'] + ["Error: Config missing required fields for Scoping."], "next_step": "END"}
         
     service_details = get_service_details(service_type)
     if not service_details:
-         return {"messages": ["Error: Service not found."], "next_step": "intake"}
+         return {"messages": state['messages'] + ["Error: Service not found."], "next_step": "intake"}
          
     duration = service_details['duration']
     
@@ -211,7 +210,7 @@ def scoping_node(state: AgentState):
         # logic to ask user again -> reset slot
         spec['requested_slot'] = None 
         spec['candidate_slot'] = alternative_iso # Store for context
-        return {"messages": [msg], "next_step": "intake", "project_spec": spec}
+        return {"messages": state['messages'] + [msg], "next_step": "intake", "project_spec": spec}
 
 def finalize_node(state: AgentState):
     """
@@ -253,7 +252,7 @@ def finalize_node(state: AgentState):
     except Exception as e:
         print(f"Email failed: {e}")
 
-    return {"messages": ["All set! Sent to the producer."], "next_step": "END"}
+    return {"messages": state['messages'] + ["All set! Sent to the producer."], "next_step": "END"}
 
 # --- GRAPH BUILD ---
 workflow = StateGraph(AgentState)
