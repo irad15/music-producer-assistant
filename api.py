@@ -17,9 +17,40 @@ from pydantic import BaseModel
 from typing import List, Optional
 import json
 
-from agent import app as agent_app, create_project_spec_model
+from contextlib import asynccontextmanager
+import os
+from psycopg_pool import AsyncConnectionPool
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from agent import app_workflow, create_project_spec_model
 
-app = FastAPI(title="Groove API")
+# --- LIFECYCLE & DB ---
+DB_URI = os.environ.get("DATABASE_URL")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    if not DB_URI:
+        print("⚠️ WARNING: DATABASE_URL not set. Memory will be ephemeral.")
+        pool = None
+    else:
+        print("🔌 Connecting to Supabase Postgres...")
+        pool = AsyncConnectionPool(conninfo=DB_URI, max_size=20)
+        await pool.open()
+        
+        # Initialize tables
+        async with pool.connection() as conn:
+            checkpointer = AsyncPostgresSaver(conn)
+            await checkpointer.setup()
+        print("✅ Postgres Checkpointer Ready.")
+        
+    app.state.pool = pool
+    yield
+    # Shutdown
+    if pool:
+        await pool.close()
+        print("🔌 Database connection closed.")
+
+app = FastAPI(title="Groove API", lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -58,11 +89,25 @@ async def chat_endpoint(request: ChatRequest):
         user_message = request.messages[-1].content
         print(f"Incoming Request: {user_message}")
         
+        # Initialize Checkpointer
+        pool = request.app.state.pool
+        
+        if pool:
+            # Persistent Mode (Postgres)
+            checkpointer = AsyncPostgresSaver(pool)
+            agent_app = app_workflow.compile(checkpointer=checkpointer)
+        else:
+            # Fallback Mode (Memory)
+            from langgraph.checkpoint.memory import MemorySaver
+            checkpointer = MemorySaver()
+            agent_app = app_workflow.compile(checkpointer=checkpointer)
+
         # Initialize or Update State
         # We need to see if state exists.
-        current_state = agent_app.get_state(config).values
+        current_state = await agent_app.aget_state(config)
+        current_values = current_state.values
         
-        if not current_state:
+        if not current_values:
             # New Session
             ProjectSpec = create_project_spec_model()
             # Instantiate with defaults (all None)
@@ -76,13 +121,11 @@ async def chat_endpoint(request: ChatRequest):
             # We don't 'invoke', we 'stream' response
             graph_input = initial_state
         else:
-            # Continuing Session - MANUAL APPEND
-            # Because MemorySaver on Render/Cloud might handle reducers differently per thread in memory,
-            # we explicitly read the last state and append the new message.
-            current_msgs = current_state.get("messages", [])
+            # Continuing Session - MANUAL APPEND strategy
+            current_msgs = current_values.get("messages", [])
             new_history = current_msgs + [user_message]
             
-            agent_app.update_state(config, {"messages": new_history})
+            await agent_app.aupdate_state(config, {"messages": new_history})
             graph_input = None # Start from current state
 
         # Generator for streaming

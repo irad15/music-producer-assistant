@@ -15,7 +15,8 @@ load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 import datetime
 from typing import TypedDict, Optional, List
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph, END
+# from langgraph.checkpoint.memory import MemorySaver (Moved to API)
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from typing import Dict, Any, List, Optional
@@ -288,8 +289,11 @@ workflow.add_conditional_edges(
 workflow.add_edge("finalize", END)
 
 # Add Checkpointer to enable interrupts/stepping
-checkpointer = MemorySaver()
-app = workflow.compile(checkpointer=checkpointer)
+# checkpointer = MemorySaver()
+# app = workflow.compile(checkpointer=checkpointer)
+
+# Just export the workflow now
+app_workflow = workflow
 
 if __name__ == "__main__":
     print("Agent Compiled with Checkpointer.")

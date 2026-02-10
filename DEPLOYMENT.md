@@ -16,10 +16,12 @@ This project is deployed in two parts:
     *   **Name**: `music-backend` (or similar)
     *   **Runtime**: **Docker** (It should detect the Dockerfile automatically)
     *   **Region**: Frankfurt (or closest to you)
-6.  **Environment Variables**:
-    Scroll down to "Environment Variables" and add:
-    *   `OPENAI_API_KEY`: (Your key)
-    *   `RESEND_API_KEY`: (Your key)
+    *   `GOOGLE_TOKEN_JSON`: **(Important)** Open `auth/token.json` locally, copy the entire JSON content, and paste it here as the value. This authenticates the calendar in production.
+    *   `DATABASE_URL`: **(Required for Persistent Memory)**.  
+        1.  Create a project on [Supabase.com](https://supabase.com).
+        2.  Go to Project Settings -> Database -> Connection String.
+        3.  Copy the URI (e.g., `postgresql://postgres:[PASSWORD]@db.supabase.co:5432/postgres`).
+        4.  Paste it here.
     *   *(Optional)* **Google Auth**: Instead of Env Vars, use the "Secret Files" tab in Render.
         1.  Add `auth/token.json` with the content of your local file.
         2.  Add `auth/credentials.json` with the content of your local file.
