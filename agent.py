@@ -58,190 +58,131 @@ class AgentState(TypedDict):
 
 # --- NODES ---
 
+# --- HELPER FUNCTIONS ---
+
+def get_llm():
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("❌ ERROR: OPENAI_API_KEY is missing")
+    return ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=api_key)
+
+def analyze_conversation(messages: List[str], current_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Extracts project fields from conversation history."""
+    DynamicSpec = create_project_spec_model()
+    req_desc = "\n".join([f"- {r['id']}: {r['description']}" for r in get_requirements()])
+    
+    system_prompt = f"""You are an expert data extractor. Extract these fields:
+    {req_desc}
+    Existing Data: {json.dumps(current_data)}
+    Rules:
+    - Only extract explicitly provided fields. Don't overwrite unless updated.
+    - Map 'Mixing' -> service_type='mixing'.
+    - Dates: Prefer DD/MM/YYYY. Naive ISO for local time.
+    - If 'candidate_slot' exists and user agrees, set 'requested_slot' to it.
+    """
+    
+    llm = get_llm().with_structured_output(DynamicSpec)
+    extraction_messages = [SystemMessage(content=system_prompt)] + [HumanMessage(content=m) for m in messages[-5:]]
+    
+    try:
+        result = llm.invoke(extraction_messages)
+        return result.model_dump(exclude_unset=True, exclude_none=True)
+    except Exception as e:
+        print(f"⚠️ Extraction failed: {e}")
+        return {}
+
+def generate_response(messages: List[str], current_data: Dict[str, Any], missing_field: str) -> str:
+    """Generates a conversational question for the next missing field."""
+    system_prompt = f"""You are 'Groove', a cool, professional music producer.
+    Status: {json.dumps(current_data)}
+    Missing: {missing_field}
+    Task: Acknowledge new info. Ask for '{missing_field}'. One question only. Short.
+    """
+    response_messages = [SystemMessage(content=system_prompt)] + [HumanMessage(content=m) for m in messages[-3:]]
+    return get_llm().invoke(response_messages).content
+
+# --- NODES ---
+
 def intake_node(state: AgentState):
-    """
-    Conversational Intake Node.
-    Analyzes convo to fill ProjectSpec.
-    """
+    """Analyzes conversation and routes flow."""
     print("--- NODE: Intake ---")
     messages = state['messages']
     current_data = state['project_spec']
     
-    # 1. Analyze current state using LLM to extract fields
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("❌ ERROR: OPENAI_API_KEY is missing in agent.py")
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=api_key)
-    
-    # Re-create model to ensure schema is fresh
-    DynamicSpec = create_project_spec_model()
-    
-    requirements = get_requirements()
-    req_desc = "\n".join([f"- {r['id']}: {r['description']}" for r in requirements])
-    
-    # --- EXTRACTION STEP ---
-    # We use a specific prompt to extract data from the CONVERSATION HISTORY
-    extraction_system_prompt = f"""
-    You are an expert data extractor.
-    Your goal is to extract the following fields from the conversation:
-    {req_desc}
-    
-    Existing Data: {json.dumps(current_data)}
-    
-    Rules:
-    - Only extract fields that are EXPLICITLY provided by the user.
-    - If a field is already present in Existing Data, do not overwrite it unless the user explicitly updates it.
-    - If the user says "My name is Irad", extract client_name="Irad".
-    - If the user says "Mixing", extract service_type="mixing" (map to closest valid service).
-    - Date Parsing: Prefer DD/MM/YYYY format.
-    - Timezone: If user implies local time, extract as Naive ISO string (YYYY-MM-DDTHH:MM:SS) WITHOUT 'Z' or offset.
-    - If 'candidate_slot' exists in Existing Data and user says 'ok'/'yes', set 'requested_slot' to that candidate value.
-    """
-    
-    structured_llm = llm.with_structured_output(DynamicSpec)
-    # We feed the last few messages to the extractor
-    extraction_messages = [SystemMessage(content=extraction_system_prompt)] + [HumanMessage(content=m) for m in messages[-5:]]
-    
-    try:
-        extracted_data = structured_llm.invoke(extraction_messages)
-        
-        # Merge extracted data into current_data
-        # extracted_data is a Pydantic model (ProjectSpec)
-        extracted_dict = extracted_data.model_dump(exclude_unset=True, exclude_none=True)
-        
-        if extracted_dict:
-            print(f"🔍 Extracted: {extracted_dict}")
-            current_data.update(extracted_dict)
-            # Update state with new data
-            state['project_spec'] = current_data
-    except Exception as e:
-        print(f"⚠️ Extraction failed: {e}")
+    # 1. Extraction
+    extracted = analyze_conversation(messages, current_data)
+    if extracted:
+        print(f"🔍 Extracted: {extracted}")
+        current_data.update(extracted)
+        state['project_spec'] = current_data
 
-    # --- DECISION STEP ---
-    # Now we check what is STILL missing
+    # 2. Validation & Decision
     missing_fields = []
-    
-    # --- DECISION STEP ---
-    # Now we check what is STILL missing
-    missing_fields = []
-    
-    for req in requirements:
-        key = req['id']
-        val = current_data.get(key)
+    for req in get_requirements():
+        key, val = req['id'], current_data.get(req['id'])
         
-        # VALIDATION: Check existing values (especially service_type)
-        if key == 'service_type' and val:
-             if not validate_service(val):
-                 print(f"⚠️ Invalid service '{val}' detected. Resetting.")
-                 current_data[key] = None
-                 val = None # Treat as missing for this loop
-                 # Get valid services to show user
-                 valid_services = ", ".join(get_service_details('all').keys())
-                 missing_fields.append(f"a valid service type (Available: {valid_services})")
-                 continue
-        
+        if key == 'service_type' and val and not validate_service(val):
+            print(f"⚠️ Invalid service '{val}'. Resetting.")
+            current_data[key] = None
+            valid_services = ", ".join(get_service_details('all').keys())
+            missing_fields.append(f"a valid service type (Available: {valid_services})")
+            continue
+            
         if val is None:
             missing_fields.append(req['description'])
 
     if not missing_fields:
         return {"next_step": "scoping", "project_spec": current_data}
     
-    # --- RESPONSE GENERATION ---
-    # Generate a conversational question for the NEXT missing field
-    next_missing = missing_fields[0]
-    
-    # We provide the UPDATED extracted data so the agent knows what it knows
-    response_system_prompt = f"""
-    You are 'Groove', a world-class music producer and studio manager. 
-    You are cool, professional, and concise. You sound like a human, not a bot.
-    
-    Your goal is to collect missing information to book a session.
-    
-    Status:
-    - Known Info: {json.dumps(current_data)}
-    - Missing Info: {', '.join(missing_fields)}
-    
-    Task:
-    - Acknowledge any new info the user just gave (e.g., "Nice to meet you, Irad!").
-    - Ask for the NEXT missing field: "{next_missing}".
-    - Ask ONLY ONE question.
-    - Keep it short.
-    """
-    
-    # Context for response generation
-    response_messages = [SystemMessage(content=response_system_prompt)] + [HumanMessage(content=m) for m in messages[-3:]]
-    
-    response = llm.invoke(response_messages)
-    
-    return {"messages": messages + [response.content], "next_step": "intake", "project_spec": current_data}
+    # 3. Response
+    response_text = generate_response(messages, current_data, missing_fields[0])
+    return {"messages": messages + [response_text], "next_step": "intake", "project_spec": current_data}
 
 def scoping_node(state: AgentState):
-    """
-    Checks availability.
-    """
+    """Checks availability."""
     print("--- NODE: Scoping ---")
-    spec = state['project_spec'] # Dict
+    spec = state['project_spec']
+    service, slot = spec.get('service_type'), spec.get('requested_slot')
     
-    # We dynamically access fields. We assume 'service_type' and 'requested_slot' exist 
-    # because they are in the default config. If user removes them, this node Logic breaks 
-    # (which is expected, Layer 1 logic requires certain inputs).
-    # Ideally, we'd check if they exist.
-    
-    service_type = spec.get('service_type')
-    requested_slot = spec.get('requested_slot')
-    
-    if not service_type or not requested_slot:
-        # Fallback if config was changed incompatibly
-        return {"messages": state['messages'] + ["Error: Config missing required fields for Scoping."], "next_step": "END"}
+    if not service or not slot:
+        return {"messages": state['messages'] + ["Error: Missing fields for scoping."], "next_step": "END"}
         
-    service_details = get_service_details(service_type)
-    if not service_details:
-         return {"messages": state['messages'] + ["Error: Service not found."], "next_step": "intake"}
-         
-    duration = service_details['duration']
+    details = get_service_details(service)
+    if not details:
+        return {"messages": state['messages'] + ["Error: Service not found."], "next_step": "intake"}
     
-    result = check_availability(requested_slot, duration)
+    result = check_availability(slot, details['duration'])
     
     if result['available']:
         return {"next_step": "finalize"}
-    else:
-        # Slot busy
-        alternative_iso = result['alternatives'][0]
-        msg = f"Yo, that slot is booked. How about {alternative_iso}?"
-        # logic to ask user again -> reset slot
-        spec['requested_slot'] = None 
-        spec['candidate_slot'] = alternative_iso # Store for context
-        return {"messages": state['messages'] + [msg], "next_step": "intake", "project_spec": spec}
+    
+    # Handle Busy Slot
+    alt_iso = result['alternatives'][0]
+    spec.update({'requested_slot': None, 'candidate_slot': alt_iso})
+    msg = f"Yo, that slot is booked. How about {alt_iso}?"
+    return {"messages": state['messages'] + [msg], "next_step": "intake", "project_spec": spec}
 
 def finalize_node(state: AgentState):
-    """
-    Writes payload and emails.
-    """
+    """Writes payload and emails."""
     print("--- NODE: Finalize ---")
-    spec = state['project_spec'] # Dict
+    spec = state['project_spec']
+    spec.pop("candidate_slot", None)
     
-    # Cleanup internal fields
-    if "candidate_slot" in spec:
-        del spec["candidate_slot"]
-    
-    # 1. Summary
-    # Dynamic summary based on what keys we have
-    summary_lines = ["NEW LEAD:"]
-    for k, v in spec.items():
-        if k != "producer_summary":
-            summary_lines.append(f"{k}: {v}")
-            
-    summary = "\n".join(summary_lines)
+    # Summary
+    summary = "NEW LEAD:\n" + "\n".join([f"{k}: {v}" for k, v in spec.items() if k != "producer_summary"])
     spec['producer_summary'] = summary
     
-    # 2. Storage
-    with open("data/leads.json", "r+") as f:
-        data = json.load(f)
-        data.append(spec)
-        f.seek(0)
-        json.dump(data, f, indent=2)
-        
-    # 3. Email
+    # JSON Storage
+    try:
+        with open("data/leads.json", "r+") as f:
+            data = json.load(f)
+            data.append(spec)
+            f.seek(0)
+            json.dump(data, f, indent=2)
+    except FileNotFoundError:
+        pass # Should handle this better in prod
+
+    # Email
     resend.api_key = os.getenv("RESEND_API_KEY")
     try:
         resend.Emails.send({
