@@ -19,15 +19,22 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 def get_calendar_service():
     """Authenticated and returns the Google Calendar service."""
     creds = None
+    # Priority 1: Local File (Dev)
     token_path = "auth/token.json"
     if os.path.exists(token_path):
         creds = Credentials.from_authorized_user_file(token_path, SCOPES)
     
+    # Priority 2: Env Var (Prod/Render)
+    elif os.environ.get("GOOGLE_TOKEN_JSON"):
+        import json
+        token_info = json.loads(os.environ.get("GOOGLE_TOKEN_JSON"))
+        creds = Credentials.from_authorized_user_info(token_info, SCOPES)
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            raise Exception("Token invalid or missing. Run tools/test_calendar.py to authenticate first.")
+            raise Exception("Token invalid or missing. Local: check auth/token.json. Prod: check GOOGLE_TOKEN_JSON env var.")
             
     return build("calendar", "v3", credentials=creds)
 
