@@ -1,0 +1,40 @@
+{
+    "services": {
+        "podcast_recording": {
+            "duration": 1,
+            "base_price": 100
+        },
+        "audio_editing": {
+            "duration": 2,
+            "base_price": 150
+        }
+    },
+    "timezone": "America/Los_Angeles",
+    "rules": [
+        "Silence phones during recording",
+        "Water only in the studio",
+        "SD card provided"
+    ],
+    "requirements": [
+        {
+            "id": "client_name",
+            "description": "Host Name",
+            "type": "string"
+        },
+        {
+            "id": "service_type",
+            "description": "Service (podcast_recording, audio_editing)",
+            "type": "string"
+        },
+        {
+            "id": "guest_count",
+            "description": "Number of guests",
+            "type": "integer"
+        },
+        {
+            "id": "requested_slot",
+            "description": "Booking time",
+            "type": "string"
+        }
+    ]
+}

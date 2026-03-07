@@ -9,9 +9,10 @@ ENV PYTHONUNBUFFERED=1 \
 # Set work directory
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install uv and dependencies
+RUN pip install uv
+COPY pyproject.toml uv.lock* requirements.txt ./
+RUN uv sync
 
 # Copy project files
 COPY . .
@@ -21,4 +22,4 @@ EXPOSE 8000
 
 # API Key workaround for build (if needed) but ideally runtime only.
 # Run the application
-CMD ["sh", "-c", "uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uv run uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"]

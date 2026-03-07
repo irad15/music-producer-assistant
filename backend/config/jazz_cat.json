@@ -1,0 +1,40 @@
+{
+    "services": {
+        "recording": {
+            "duration": 6,
+            "base_price": 800
+        },
+        "tape_transfer": {
+            "duration": 2,
+            "base_price": 200
+        }
+    },
+    "timezone": "America/New_York",
+    "rules": [
+        "Analog gear is delicate - ask before touching",
+        "Whiskey provided",
+        "Bring your own reeds"
+    ],
+    "requirements": [
+        {
+            "id": "client_name",
+            "description": "Band or Artist Name",
+            "type": "string"
+        },
+        {
+            "id": "service_type",
+            "description": "Service needed (recording, tape_transfer)",
+            "type": "string"
+        },
+        {
+            "id": "instrument_list",
+            "description": "List of instruments being recorded",
+            "type": "string"
+        },
+        {
+            "id": "requested_slot",
+            "description": "Preferred session time",
+            "type": "string"
+        }
+    ]
+}

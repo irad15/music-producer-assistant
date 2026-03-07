@@ -1,5 +1,6 @@
   - type: web
     name: music-backend
+    rootDir: backend
     runtime: docker
     plan: free
     envVars:

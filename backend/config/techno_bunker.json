@@ -1,0 +1,44 @@
+{
+    "services": {
+        "mixing": {
+            "duration": 4,
+            "base_price": 600
+        },
+        "mastering": {
+            "duration": 2,
+            "base_price": 100
+        },
+        "recording": {
+            "duration": 4,
+            "base_price": 400
+        }
+    },
+    "timezone": "Europe/Berlin",
+    "rules": [
+        "No shoes in the booth",
+        "Techno only (just kidding)",
+        "Late night sessions preferred"
+    ],
+    "requirements": [
+        {
+            "id": "client_name",
+            "description": "Name of the artist/DJ",
+            "type": "string"
+        },
+        {
+            "id": "service_type",
+            "description": "Type of service (mixing, mastering, recording)",
+            "type": "string"
+        },
+        {
+            "id": "bpm",
+            "description": "Average BPM of the track",
+            "type": "integer"
+        },
+        {
+            "id": "requested_slot",
+            "description": "Preferred late-night slot",
+            "type": "string"
+        }
+    ]
+}

@@ -2,7 +2,7 @@
 
 A conversational AI agent designed to automate client intake, scheduling, and management for music production studios. Built with **LangGraph**, **FastAPI**, and **Next.js**.
 
-![Graph Visualization](graph.png)
+![Graph Visualization](docs/graph.png)
 
 ## 🚀 Features
 
@@ -32,15 +32,20 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
 
 ### Backend Setup
 
-1.  **Navigate to root** and create a virtual environment:
+1.  **Navigate to backend**:
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate
+    cd backend
+    ```
+2.  **Install `uv`** (if not already installed):
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
 2.  **Install Dependencies**:
+    `uv` handles the isolated environment automatically in the background. Just run:
     ```bash
-    pip install fastapi uvicorn langgraph langchain-openai python-dotenv google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client resend
+    uv sync
     ```
+    *(To add new dependencies in the future, use `uv add <package>`)*
 3.  **Environment Variables**:
     Create a `.env` file in the root directory:
     ```env
@@ -49,7 +54,10 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
     ```
 4.  **Google Auth**:
     Place your `credentials.json` (OAuth Client ID) in `auth/credentials.json`.
-    Run the auth flow once to generate `token.json` (handled by `tools/calendar_mcp.py`).
+    Run the setup script once to start the auth flow and generate `token.json`:
+    ```bash
+    uv run auth/setup_auth.py
+    ```
 
 ### Frontend Setup
 
@@ -65,9 +73,9 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
 ## 🏃‍♂️ Running the App
 
 ### 1. Start the Backend API
-From the root directory:
+From the `backend` directory:
 ```bash
-python3 api.py
+uv run api.py
 ```
 *Server runs at `http://localhost:8000`*
 
@@ -80,11 +88,12 @@ npm run dev
 
 ## 🧠 Project Structure
 
--   `agent.py`: Core LangGraph logic (State Machine, Nodes, Edges).
--   `api.py`: FastAPI application serving the agent via REST.
--   `tools/`: Custom tools for Calendar and Studio knowledge.
--   `config/studio_config.json`: Configuration for services, pricing, and rules.
+-   `backend/agent.py`: Core LangGraph logic (State Machine, Nodes, Edges).
+-   `backend/api.py`: FastAPI application serving the agent via REST.
+-   `backend/tools/`: Custom tools for Calendar and Studio knowledge.
+-   `backend/config/studio_config.json`: Configuration for services, pricing, and rules.
 -   `frontend/`: Next.js Web Application.
+-   `docs/`: Project documentation and architecture details.
 
 ## 🚧 Future Improvements (Roadmap)
 

@@ -18,22 +18,26 @@
         {
             "id": "client_name",
             "description": "Name of the client",
-            "type": "string"
+            "type": "string",
+            "mandatory": true
         },
         {
             "id": "service_type",
             "description": "Type of service (mixing, recording, etc.)",
-            "type": "string"
+            "type": "string",
+            "mandatory": true
         },
         {
             "id": "attendee_count",
             "description": "Number of people attending",
-            "type": "integer"
+            "type": "integer",
+            "mandatory": true
         },
         {
             "id": "requested_slot",
             "description": "Preferred date and time for the session",
-            "type": "string"
+            "type": "string",
+            "mandatory": true
         }
     ]
 }

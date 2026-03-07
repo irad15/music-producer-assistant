@@ -1,0 +1,40 @@
+{
+    "services": {
+        "beat_making": {
+            "duration": 3,
+            "base_price": 150
+        },
+        "vocal_recording": {
+            "duration": 2,
+            "base_price": 100
+        }
+    },
+    "timezone": "Asia/Tokyo",
+    "rules": [
+        "Chill vibes only",
+        "We have a cat",
+        "Payment upfront"
+    ],
+    "requirements": [
+        {
+            "id": "client_name",
+            "description": "Artist Name",
+            "type": "string"
+        },
+        {
+            "id": "service_type",
+            "description": "Service (beat_making, vocal_recording)",
+            "type": "string"
+        },
+        {
+            "id": "vibe",
+            "description": "Describe the vibe you want",
+            "type": "string"
+        },
+        {
+            "id": "requested_slot",
+            "description": "When do you want to come by?",
+            "type": "string"
+        }
+    ]
+}

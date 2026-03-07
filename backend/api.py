@@ -35,12 +35,12 @@ async def lifespan(app: FastAPI):
             await AsyncPostgresSaver(conn).setup()
 
         app.state.pool = pool
-        app.state.memory = None
+        app.state.checkpointer = AsyncPostgresSaver(pool) # Store ready-to-use checkpointer
         print("✅ Postgres Checkpointer Ready.")
     else:
         print("⚠️ WARNING: DATABASE_URL not set. Memory will be ephemeral.")
         app.state.pool = None
-        app.state.memory = MemorySaver()
+        app.state.checkpointer = MemorySaver()
         print("🧠 MemorySaver Checkpointer Ready (Local/Ephemeral).")
     
     yield
@@ -62,11 +62,7 @@ class ChatRequest(BaseModel):
     session_id: str = "default_session"
 
 # --- HELPERS ---
-def get_checkpointer(app_state):
-    """Returns the appropriate checkpointer based on environment."""
-    if app_state.pool:
-        return AsyncPostgresSaver(app_state.pool)
-    return app_state.memory
+# get_checkpointer removed as it is no longer needed
 
 async def get_initial_state(agent_app, config, user_msg):
     """Determines if we are starting new or appending to existing."""
@@ -97,7 +93,7 @@ async def chat_endpoint(req: ChatRequest, fast_req: Request):
         config = {"configurable": {"thread_id": req.session_id}}
         
         # 1. Compile Graph with Checkpointer
-        checkpointer = get_checkpointer(fast_req.app.state)
+        checkpointer = fast_req.app.state.checkpointer
         agent = app_workflow.compile(checkpointer=checkpointer)
         
         # 2. Get Input Payload (New or Append)
