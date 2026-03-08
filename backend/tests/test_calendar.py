@@ -4,7 +4,7 @@ import os
 # Add project root to sys.path so we can import tools directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools.calendar_mcp import get_calendar_service
+from app.tools.calendar_mcp import get_calendar_service
 from googleapiclient.errors import HttpError
 import datetime
 

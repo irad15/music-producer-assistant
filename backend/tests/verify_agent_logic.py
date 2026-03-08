@@ -10,10 +10,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from agent import app, create_project_spec_model
+from langgraph.checkpoint.memory import MemorySaver
+from app.agent import app_workflow, create_project_spec_model
 
 def run_verification():
     print("🧪 Starting Agent Verification (With Memory)...")
+    checkpointer = MemorySaver()
+    app = app_workflow.compile(checkpointer=checkpointer)
     
     # Config for thread
     config = {"configurable": {"thread_id": "verify_thread_1"}}

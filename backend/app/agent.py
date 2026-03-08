@@ -10,8 +10,8 @@ Purpose:
 import os
 import json
 # Load Environment
-from dotenv import load_dotenv
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 import datetime
 from typing import TypedDict, Optional, List
 from langgraph.graph import StateGraph, END
@@ -23,8 +23,8 @@ from typing import Dict, Any, List, Optional
 from pydantic import create_model, Field
 
 # Import Tools
-from tools.studio_knowledge import get_service_details, validate_service, get_requirements
-from tools.calendar_mcp import check_availability
+from app.tools.studio_knowledge import get_service_details, validate_service, get_requirements
+from app.tools.calendar_mcp import check_availability
 import resend
 
 # ... (Environment loading) ...
@@ -203,7 +203,7 @@ def finalize_node(state: AgentState):
     
     # JSON Storage
     try:
-        with open("data/leads.json", "r+") as f:
+        with open("app/data/leads.json", "r+") as f:
             data = json.load(f)
             data.append(spec)
             f.seek(0)

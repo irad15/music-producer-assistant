@@ -53,10 +53,10 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
     RESEND_API_KEY=your_resend_key
     ```
 4.  **Google Auth**:
-    Place your `credentials.json` (OAuth Client ID) in `auth/credentials.json`.
+    Place your `credentials.json` (OAuth Client ID) in `app/auth/credentials.json`.
     Run the setup script once to start the auth flow and generate `token.json`:
     ```bash
-    uv run auth/setup_auth.py
+    uv run app/auth/setup_auth.py
     ```
 
 ### Frontend Setup
@@ -75,7 +75,7 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
 ### 1. Start the Backend API
 From the `backend` directory:
 ```bash
-uv run api.py
+uv run uvicorn app.api:app --reload
 ```
 *Server runs at `http://localhost:8000`*
 
@@ -88,10 +88,10 @@ npm run dev
 
 ## 🧠 Project Structure
 
--   `backend/agent.py`: Core LangGraph logic (State Machine, Nodes, Edges).
--   `backend/api.py`: FastAPI application serving the agent via REST.
--   `backend/tools/`: Custom tools for Calendar and Studio knowledge.
--   `backend/config/studio_config.json`: Configuration for services, pricing, and rules.
+-   `backend/app/agent.py`: Core LangGraph logic (State Machine, Nodes, Edges).
+-   `backend/app/api.py`: FastAPI application serving the agent via REST.
+-   `backend/app/tools/`: Custom tools for Calendar and Studio knowledge.
+-   `backend/app/config/studio_config.json`: Configuration for services, pricing, and rules.
 -   `frontend/`: Next.js Web Application.
 -   `docs/`: Project documentation and architecture details.
 

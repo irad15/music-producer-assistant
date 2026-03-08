@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.checkpoint.memory import MemorySaver
 from psycopg_pool import AsyncConnectionPool
-from agent import app_workflow, create_project_spec_model
+from app.agent import app_workflow, create_project_spec_model
 
 # Load Env
 load_dotenv()

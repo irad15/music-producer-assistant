@@ -14,24 +14,24 @@ def setup_authentication():
     print("🚀 Starting Google Calendar Authentication Setup...")
 
     # Ensure we are running from the project root by checking for the `auth` directory
-    if not os.path.exists("auth"):
-        print("❌ Error: 'auth' directory not found. Please run this script from the root of the project: `uv run auth/setup_auth.py`")
+    if not os.path.exists("app/auth"):
+        print("❌ Error: 'app/auth' directory not found. Please run this script from the root of the project: `uv run app/auth/setup_auth.py`")
         return
 
     # Check for credentials
-    if not os.path.exists("auth/credentials.json"):
-        print("❌ Error: 'auth/credentials.json' not found.")
+    if not os.path.exists("app/auth/credentials.json"):
+        print("❌ Error: 'app/auth/credentials.json' not found.")
         print("   Please download your OAuth client ID from the Google Cloud Console")
-        print("   and save it as 'auth/credentials.json' before running this script.")
+        print("   and save it as 'app/auth/credentials.json' before running this script.")
         return
 
     creds = None
 
     # Check if a token already exists
-    if os.path.exists("auth/token.json"):
-        print("ℹ️ An existing `auth/token.json` was found. Validating...")
+    if os.path.exists("app/auth/token.json"):
+        print("ℹ️ An existing `app/auth/token.json` was found. Validating...")
         try:
-            creds = Credentials.from_authorized_user_file("auth/token.json", SCOPES)
+            creds = Credentials.from_authorized_user_file("app/auth/token.json", SCOPES)
             
             if creds and creds.valid:
                 print("✅ Your existing token is still valid. No action required!")
@@ -54,7 +54,7 @@ def setup_authentication():
         print("⏳ Initiating Google OAuth Login Flow in your browser...")
         try:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "auth/credentials.json", SCOPES
+                "app/auth/credentials.json", SCOPES
             )
             # Run local server to capture the callback
             creds = flow.run_local_server(port=0)
@@ -66,9 +66,9 @@ def setup_authentication():
     # Save the successful credentials
     print("💾 Saving your new token...")
     try:
-        with open("auth/token.json", "w") as token:
+        with open("app/auth/token.json", "w") as token:
             token.write(creds.to_json())
-        print("✅ Success! Your `token.json` is ready in the `auth/` directory.")
+        print("✅ Success! Your `token.json` is ready in the `app/auth/` directory.")
         print("   You may now run `uv run tests/test_calendar.py` to test it.")
     except Exception as e:
         print(f"❌ Failed to save token: {e}")

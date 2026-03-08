@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools.studio_knowledge import get_studio_config, get_service_details, validate_service
+from app.tools.studio_knowledge import get_studio_config, get_service_details, validate_service
 
 def test_multi_config():
     print("🧪 Testing Multi-Studio Configuration...")

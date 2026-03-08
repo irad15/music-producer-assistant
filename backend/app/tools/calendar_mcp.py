@@ -8,14 +8,14 @@ from zoneinfo import ZoneInfo
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
-from tools.studio_knowledge import get_studio_config
+from app.tools.studio_knowledge import get_studio_config
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 def get_calendar_service():
     """Authenticated and returns the Google Calendar service."""
     creds = None
-    paths = ["auth/token.json", "/etc/secrets/token.json"]
+    paths = ["app/auth/token.json", "/etc/secrets/token.json"]
     
     # 1. Check Files
     for path in paths:
@@ -33,7 +33,7 @@ def get_calendar_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            raise Exception("Token invalid/missing. Check auth/token.json or GOOGLE_TOKEN_JSON.")
+            raise Exception("Token invalid/missing. Check app/auth/token.json or GOOGLE_TOKEN_JSON.")
             
     return build("calendar", "v3", credentials=creds)
 

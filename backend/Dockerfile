@@ -22,4 +22,4 @@ EXPOSE 8000
 
 # API Key workaround for build (if needed) but ideally runtime only.
 # Run the application
-CMD ["sh", "-c", "uv run uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uv run uvicorn app.api:app --host 0.0.0.0 --port ${PORT:-8000}"]

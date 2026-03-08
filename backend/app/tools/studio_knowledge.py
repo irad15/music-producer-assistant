@@ -2,14 +2,14 @@ import json
 import os
 from typing import Optional, Dict, Any
 
-DEFAULT_CONFIG = "config/producer_one.json"
+DEFAULT_CONFIG = "app/config/producer_one.json"
 
 def get_studio_config(studio_id: str = "producer_one") -> Dict[str, Any]:
     """
     Reads the studio configuration for a specific studio_id.
     Defaults to 'producer_one' if not found or not specified.
     """
-    path = f"config/{studio_id}.json"
+    path = f"app/config/{studio_id}.json"
     
     # Fallback to default if specific file doesn't exist
     if not os.path.exists(path):
