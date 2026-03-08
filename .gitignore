@@ -14,5 +14,6 @@ dist/
 
 # System
 .DS_Store
-**/auth/token.json
-**/auth/credentials.json
+credentials.json
+token.json
+docs/
