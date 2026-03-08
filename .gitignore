@@ -16,4 +16,6 @@ dist/
 .DS_Store
 credentials.json
 token.json
-docs/
+
+# Documentation
+docs/*.md
