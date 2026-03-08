@@ -270,14 +270,18 @@ if __name__ == "__main__":
     print("Agent Compiled with Checkpointer.")
     print("\n--- Mermaid Graph ---")
     try:
+        # Compile a temporary app for visualization
+        app = workflow.compile()
+        
         # Print text
         print(app.get_graph().draw_mermaid())
         
-        # Save Image
+        # Save Image (Updated path for monorepo)
         png_bytes = app.get_graph().draw_mermaid_png()
-        with open("graph.png", "wb") as f:
+        graph_path = os.path.join(os.path.dirname(__file__), "..", "..", "docs", "graph.png")
+        with open(graph_path, "wb") as f:
             f.write(png_bytes)
-        print("\n✅ Graph saved to 'graph.png'")
+        print(f"\n✅ Graph saved to '{graph_path}'")
     except Exception as e:
         print(f"Could not generate graph visualization: {e}")
     print("---------------------")
