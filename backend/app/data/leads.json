@@ -189,5 +189,26 @@
     "attendee_count": 1,
     "requested_slot": "2026-04-14T17:40:00",
     "producer_summary": "NEW LEAD:\nclient_name: Fiona\nservice_type: recording\nattendee_count: 1\nrequested_slot: 2026-04-14T17:40:00"
+  },
+  {
+    "client_name": "irad",
+    "service_type": "recording",
+    "attendee_count": 1,
+    "requested_slot": "15/04/2026 14:30",
+    "producer_summary": "NEW LEAD:\nclient_name: irad\nservice_type: recording\nattendee_count: 1\nrequested_slot: 15/04/2026 14:30"
+  },
+  {
+    "client_name": "irad",
+    "service_type": "recording",
+    "attendee_count": 1,
+    "requested_slot": "2026-04-15T14:30:00",
+    "producer_summary": "NEW LEAD:\nclient_name: irad\nservice_type: recording\nattendee_count: 1\nrequested_slot: 2026-04-15T14:30:00"
+  },
+  {
+    "client_name": "irad",
+    "service_type": "recording",
+    "attendee_count": 1,
+    "requested_slot": "2026-04-15T14:30:00",
+    "producer_summary": "NEW LEAD:\nclient_name: irad\nservice_type: recording\nattendee_count: 1\nrequested_slot: 2026-04-15T14:30:00"
   }
 ]

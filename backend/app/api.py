@@ -116,8 +116,7 @@ async def get_initial_state(agent_app, config, user_msg):
         empty_spec = {k: None for k in spec_model.model_fields.keys()}
         return {
             "messages": [user_msg],
-            "project_spec": empty_spec, 
-            "next_step": "intake"
+            "project_spec": empty_spec,
         }
     
     current_msgs = state.values.get("messages", [])
