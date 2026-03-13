@@ -24,7 +24,7 @@ from pydantic import create_model, Field
 
 # Import Tools
 from app.tools.studio_knowledge import get_service_details, validate_service, get_requirements
-from app.tools.calendar_mcp import check_availability
+from app.tools.calendar_tool import check_availability
 import resend
 
 # ... (Environment loading) ...

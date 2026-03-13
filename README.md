@@ -47,7 +47,7 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
     ```
     *(To add new dependencies in the future, use `uv add <package>`)*
 3.  **Environment Variables**:
-    Create a `.env` file in the root directory:
+    Create a `.env` file in the `backend/` directory:
     ```env
     OPENAI_API_KEY=your_openai_key
     RESEND_API_KEY=your_resend_key

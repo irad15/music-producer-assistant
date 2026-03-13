@@ -15,7 +15,7 @@ def setup_authentication():
 
     # Ensure we are running from the project root by checking for the `auth` directory
     if not os.path.exists("app/auth"):
-        print("❌ Error: 'app/auth' directory not found. Please run this script from the root of the project: `uv run app/auth/setup_auth.py`")
+        print("❌ Error: 'app/auth' directory not found. Please run this script from the 'backend/' directory: `uv run app/auth/setup_auth.py`")
         return
 
     # Check for credentials
@@ -56,7 +56,8 @@ def setup_authentication():
             flow = InstalledAppFlow.from_client_secrets_file(
                 "app/auth/credentials.json", SCOPES
             )
-            # Run local server to capture the callback
+            # This line opens your browser (e.g. Chrome) to ask you to login and accept permissions.
+            # Once you finish in the browser, it puts the token data into the 'creds' variable.
             creds = flow.run_local_server(port=0)
             print("✅ Successfully authenticated with Google!")
         except Exception as e:
