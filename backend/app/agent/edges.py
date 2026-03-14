@@ -5,7 +5,7 @@ Each function inspects the current state and returns the name of the next node.
 Routing logic lives here — nodes only update state, they never decide where to go next.
 """
 from app.agent.state import AgentState
-from app.tools.studio_knowledge import get_requirements
+from app.tools.business_knowledge import get_requirements
 
 
 def route_after_intake(state: AgentState) -> str:

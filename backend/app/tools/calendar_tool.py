@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
-from app.tools.studio_knowledge import get_studio_config
+from app.tools.business_knowledge import get_business_config
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
@@ -20,16 +20,16 @@ def check_availability(start_time_iso: str, duration_hours: int):
     Checks slot availability and finds 3 alternatives if the primary slot is busy.
     """
     service = get_calendar_service()
-    studio_tz = get_studio_config().get("timezone", "UTC")
+    business_tz = get_business_config().get("timezone", "UTC")
     
     # 1. Parse requested time & Calculate end time
     try:
-        start_dt = parse_time(start_time_iso, studio_tz)
+        start_dt = parse_time(start_time_iso, business_tz)
     except Exception as e:
         return {"available": False, "alternatives": [], "error": f"Date error: {e}"}
         
     end_dt = start_dt + datetime.timedelta(hours=duration_hours)
-    print(f"📅 Checking Availability: {start_dt.isoformat()} to {end_dt.isoformat()} ({studio_tz})")
+    print(f"📅 Checking Availability: {start_dt.isoformat()} to {end_dt.isoformat()} ({business_tz})")
 
     # 2. Check Primary Slot
     if not is_busy(service, start_dt, end_dt):

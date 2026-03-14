@@ -2,14 +2,14 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.tools.studio_knowledge import get_studio_config, get_service_details, validate_service
+from app.tools.business_knowledge import get_business_config, get_service_details, validate_service
 
 def test_multi_config():
-    print("🧪 Testing Multi-Studio Configuration...")
+    print("🧪 Testing Multi-business Configuration...")
 
     # 1. Test Default (Backwards Compatibility)
     print("\n1. Testing Default (producer_one)...")
-    config = get_studio_config()
+    config = get_business_config()
     if config.get("timezone") == "Asia/Jerusalem":
         print("✅ Default loaded correctly (producer_one)")
     else:
@@ -17,7 +17,7 @@ def test_multi_config():
 
     # 2. Test Specific Config (Techno Bunker)
     print("\n2. Testing Techno Bunker...")
-    config = get_studio_config("techno_bunker")
+    config = get_business_config("techno_bunker")
     if config.get("timezone") == "Europe/Berlin":
         print("✅ Techno Bunker loaded correctly")
     else:
@@ -41,7 +41,7 @@ def test_multi_config():
 
     # 5. Test Invalid ID Fallback
     print("\n5. Testing Invalid ID Fallback...")
-    config = get_studio_config("non_existent_studio")
+    config = get_business_config("non_existent_business")
     if config.get("timezone") == "Asia/Jerusalem":
         print("✅ Fallback to producer_one working")
     else:

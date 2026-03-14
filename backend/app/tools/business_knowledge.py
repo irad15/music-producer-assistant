@@ -6,16 +6,16 @@ DEFAULT_CONFIG = "app/config/producer_one.json"
 
 # --- MAIN SERVICE LOGIC ---
 
-def validate_service(service_name: str, studio_id: str = "producer_one") -> bool:
+def validate_service(service_name: str, business_id: str = "producer_one") -> bool:
     """Checks if a service exists in the config."""
-    config = get_studio_config(studio_id)
+    config = get_business_config(business_id)
     if "error" in config:
         return False
     return service_name.lower() in [s.lower() for s in config.get("services", {}).keys()]
 
-def get_service_details(service_name: str, studio_id: str = "producer_one"):
+def get_service_details(service_name: str, business_id: str = "producer_one"):
     """Returns details for a specific service."""
-    config = get_studio_config(studio_id)
+    config = get_business_config(business_id)
     if "error" in config:
         return None
     if service_name.lower() == "all":
@@ -24,9 +24,9 @@ def get_service_details(service_name: str, studio_id: str = "producer_one"):
     # Returns the full dictionary for the service (includes duration, base_price, etc.)
     return config.get("services", {}).get(service_name.lower())
 
-def get_requirements(studio_id: str = "producer_one"):
+def get_requirements(business_id: str = "producer_one"):
     """Returns the list of requirements for a lead."""
-    config = get_studio_config(studio_id)
+    config = get_business_config(business_id)
     if "error" in config:
         return []
     return config.get("requirements", [])
@@ -34,12 +34,12 @@ def get_requirements(studio_id: str = "producer_one"):
 
 # --- HELPER FUNCTIONS ---
 
-def get_studio_config(studio_id: str = "producer_one") -> Dict[str, Any]:
+def get_business_config(business_id: str = "producer_one") -> Dict[str, Any]:
     """
-    Reads the studio configuration for a specific studio_id.
+    Reads the business configuration for a specific business_id.
     Defaults to 'producer_one' if not found or not specified.
     """
-    path = f"app/config/{studio_id}.json"
+    path = f"app/config/{business_id}.json"
     
     # Fallback to default if specific file doesn't exist
     if not os.path.exists(path):
@@ -47,7 +47,7 @@ def get_studio_config(studio_id: str = "producer_one") -> Dict[str, Any]:
         path = DEFAULT_CONFIG
         
     if not os.path.exists(path):
-        return {"error": "Studio config not found"}
+        return {"error": "business config not found"}
     
     try:
         # Attempt to open and parse the JSON configuration file

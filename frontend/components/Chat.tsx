@@ -1,6 +1,6 @@
 'use client';
 
-import { Send, Music, User, Bot } from 'lucide-react';
+import { Send, BriefcaseBusiness, User, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -82,7 +82,7 @@ export default function Chat() {
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: "⚠️ Sorry, I can't reach the studio server right now."
+                content: "⚠️ Sorry, I can't reach the business server right now."
             };
             setMessages(prev => [...prev, errorMsg]);
         } finally {
@@ -97,11 +97,11 @@ export default function Chat() {
             <div className="flex items-center justify-between px-6 py-4 bg-zinc-950 border-b border-zinc-800">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-500/10 rounded-lg">
-                        <Music className="w-5 h-5 text-indigo-400" />
+                        <BriefcaseBusiness className="w-5 h-5 text-indigo-400" />
                     </div>
                     <div>
                         <h2 className="text-sm font-semibold text-zinc-100">Mr Groove</h2>
-                        <p className="text-xs text-zinc-500">Irad's Studio Assistant</p>
+                        <p className="text-xs text-zinc-500">Irad's business Assistant</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -114,8 +114,8 @@ export default function Chat() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full text-zinc-600 gap-4 opacity-50">
-                        <Music className="w-12 h-12" />
-                        <p>Ready to book. What&apos;s the vibe?</p>
+                        <BriefcaseBusiness className="w-12 h-12" />
+                        <p>Ready to help. How can I assist you today?</p>
                     </div>
                 )}
 

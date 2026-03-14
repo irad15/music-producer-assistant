@@ -13,7 +13,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 import resend
 
-from app.tools.studio_knowledge import get_requirements
+from app.tools.business_knowledge import get_requirements
 from app.agent.state import create_project_spec_model
 
 
@@ -52,8 +52,8 @@ def analyze_conversation(messages: List[str], current_data: Dict[str, Any]) -> D
 
 
 def generate_response(messages: List[str], current_data: Dict[str, Any], missing_field: str) -> str:
-    """Generates a conversational Groove reply asking for the next missing field."""
-    system_prompt = f"""You are 'Groove', a laid-back, professional, and friendly music producer assistant.
+    """Generates a conversational reply asking for the next missing field."""
+    system_prompt = f"""You are 'Groove', a laid-back, professional, and friendly assistant.
     You're chatting with a potential client. Your vibe is cool but efficient.
 
     Current Project Status: {json.dumps(current_data)}

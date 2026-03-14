@@ -1,25 +1,50 @@
-# 🎵 AI Music Studio Assistant ("Groove")
+# 🤖 AI Business Assistant
 
-A conversational AI agent designed to automate client intake, scheduling, and management for music production studios. Built with **LangGraph**, **FastAPI**, and **Next.js**.
+A conversational AI agent designed to automate client intake, scheduling, and lead management for **any service-based business**. Built with **LangGraph**, **FastAPI**, and **Next.js**.
+
+> Works out of the box for any service provider — studios, consultants, clinics, agencies, and more. Just drop in a business config file.
 
 ![Graph Visualization](docs/graph.png)
 
 ## 🚀 Features
 
--   **Conversational Intake**: "Groove" persona intelligently gathers client details (Name, Service, Date, Attendees).
+-   **Conversational Intake**: An AI persona intelligently gathers client details (name, service type, date, attendee count) through natural dialogue.
 -   **Real-Time Scheduling**: Integrates with **Google Calendar API** to check availability and propose alternative slots in real-time.
--   **Context Retention**: Remembers conversation history and context (e.g., knows what "it" refers to when accepting a slot).
--   **Smart Validation**: Validates services against studio offerings and handles timezone-aware date parsing.
--   **Automated Confirmations**: Sends email notifications to the studio manager via **Resend** upon successful booking.
+-   **Context Retention**: Remembers conversation history and context (e.g., knows what "it" refers to when a client accepts a slot).
+-   **Smart Validation**: Validates requested services against the business's configured offerings and handles timezone-aware date parsing.
+-   **Automated Confirmations**: Sends email notifications to the business manager via **Resend** upon successful booking.
+-   **Multi-Business Support**: Configure multiple businesses via JSON profiles — each with their own services, pricing, rules, and timezone.
 
 ## 🛠️ Tech Stack
 
--   **Architecture**: Client-Server (Rest API)
--   **Frontend**: Next.js 14, TypeScript, Tailwind CSS, Lucide React
+-   **Architecture**: Client-Server (REST API + WebSocket)
+-   **Frontend**: Next.js 14, TypeScript, Tailwind CSS
 -   **Backend**: Python 3.11+, FastAPI, Uvicorn
 -   **AI Orchestration**: LangGraph, LangChain, OpenAI GPT-4o-mini
 -   **Data Validation**: Pydantic
 -   **External APIs**: Google Calendar, Resend
+
+## ⚙️ Business Configuration
+
+Each business is defined by a JSON config file in `backend/app/config/`. Example:
+
+```json
+{
+    "services": {
+        "consultation": { "duration": 1, "base_price": 150 },
+        "full-project": { "duration": 8, "base_price": 1200 }
+    },
+    "timezone": "America/New_York",
+    "rules": ["50% deposit required", "24-hour cancellation policy"],
+    "requirements": [
+        { "id": "client_name", "description": "Name of the client", "type": "string" },
+        { "id": "service_type", "description": "Type of service requested", "type": "string" },
+        { "id": "requested_slot", "description": "Preferred date and time", "type": "string" }
+    ]
+}
+```
+
+Add a new file (e.g., `my_business.json`) and pass `business_id=my_business` to target it at runtime.
 
 ## 📦 Installation
 
@@ -28,7 +53,7 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
 -   Node.js 18+
 -   OpenAI API Key
 -   Resend API Key
--   Google Cloud Service Account/OAuth Credentials (for Calendar)
+-   Google Cloud OAuth Credentials (for Calendar)
 
 ### Backend Setup
 
@@ -40,21 +65,16 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
     ```bash
     curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
-2.  **Install Dependencies**:
-    `uv` handles the isolated environment automatically in the background. Just run:
+3.  **Install Dependencies**:
     ```bash
     uv sync
     ```
-    *(To add new dependencies in the future, use `uv add <package>`)*
-3.  **Environment Variables**:
-    Create a `.env` file in the `backend/` directory:
+4.  **Environment Variables** — create a `.env` in the root directory:
     ```env
     OPENAI_API_KEY=your_openai_key
     RESEND_API_KEY=your_resend_key
     ```
-4.  **Google Auth**:
-    Place your `credentials.json` (OAuth Client ID) in `app/auth/credentials.json`.
-    Run the setup script once to start the auth flow and generate `token.json`:
+5.  **Google Auth** — place your `credentials.json` in `app/auth/credentials.json`, then run:
     ```bash
     uv run app/auth/setup_auth.py
     ```
@@ -72,14 +92,14 @@ A conversational AI agent designed to automate client intake, scheduling, and ma
 
 ## 🏃‍♂️ Running the App
 
-### 1. Start the Backend API
+### 1. Start the Backend
 From the `backend` directory:
 ```bash
 uv run uvicorn app.api:app --reload
 ```
-*Server runs at `http://localhost:8000`*
+*API runs at `http://localhost:8000`*
 
-### 2. Start the Frontend Client
+### 2. Start the Frontend
 From the `frontend` directory:
 ```bash
 npm run dev
@@ -88,15 +108,17 @@ npm run dev
 
 ## 🧠 Project Structure
 
--   `backend/app/agent.py`: Core LangGraph logic (State Machine, Nodes, Edges).
--   `backend/app/api.py`: FastAPI application serving the agent via REST.
--   `backend/app/tools/`: Custom tools for Calendar and Studio knowledge.
--   `backend/app/config/studio_config.json`: Configuration for services, pricing, and rules.
--   `frontend/`: Next.js Web Application.
--   `docs/`: Project documentation and architecture details.
+-   `backend/app/agent/`: Modular LangGraph state machine (nodes, edges, graph, state, tools).
+-   `backend/app/api.py`: FastAPI server with WebSocket support.
+-   `backend/app/tools/`: Tool implementations (Google Calendar, business knowledge lookup).
+-   `backend/app/config/`: JSON business profiles (one file per business).
+-   `backend/app/data/leads.json`: Persisted lead records.
+-   `frontend/`: Next.js chat interface.
+-   `docs/`: Architecture diagrams and project documentation.
 
-## 🚧 Future Improvements (Roadmap)
+## 🚧 Roadmap
 
--   **Streaming Responses**: Enable real-time text streaming for a snappier UX (Phase 5).
--   **Voice Interface**: Add speech-to-text for voice bookings.
--   **Payment Integration**: Stripe link generation in the Finalize step.
+-   **Streaming Responses**: Real-time text streaming for a snappier UX.
+-   **Voice Interface**: Speech-to-text for voice bookings.
+-   **Payment Integration**: Stripe link generation upon booking confirmation.
+-   **Admin Dashboard**: View and manage leads from a web UI.

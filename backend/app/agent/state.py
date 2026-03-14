@@ -2,16 +2,16 @@
 agent/state.py: State & Schema Definitions
 
 - Defines the AgentState TypedDict used across all nodes.
-- Dynamically builds the ProjectSpec Pydantic model from studio_config.json.
+- Dynamically builds the ProjectSpec Pydantic model from business_config.json.
 """
 from typing import TypedDict, Optional, List, Dict, Any
 from pydantic import create_model, Field
-from app.tools.studio_knowledge import get_requirements
+from app.tools.business_knowledge import get_requirements
 
 
 def create_project_spec_model():
     """
-    Dynamically creates a Pydantic model based on studio_config.json requirements.
+    Dynamically creates a Pydantic model based on business_config.json requirements.
     """
     fields = {}
     for req in get_requirements():

@@ -7,7 +7,7 @@ They do NOT decide the next step — that is edges.py's job.
 import datetime
 from typing import Dict
 
-from app.tools.studio_knowledge import get_service_details, validate_service, get_requirements
+from app.tools.business_knowledge import get_service_details, validate_service, get_requirements
 from app.tools.calendar_tool import check_availability
 from app.agent.state import AgentState
 from app.agent.tools import (
@@ -102,5 +102,5 @@ def finalize_node(state: AgentState) -> Dict:
     save_lead_to_disk(spec)
     send_notification_email(spec, summary)
 
-    msg = "Awesome! I've sent the details to the producer. Catch you in the studio! 🎧"
+    msg = "Awesome! I've sent the details to the team. Talk to you later!"
     return {"messages": state['messages'] + [msg]}
